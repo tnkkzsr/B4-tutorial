@@ -96,7 +96,7 @@ class DoublyLinkedList:
             list.append(str(current_node.value))
             current_node = current_node.next
         print(" ".join(list))
-        return list
+        
 
 
 def execute_command(linked_list, commands):
