@@ -10,8 +10,6 @@
 """
 
 
-
-
 def bubble_sort(cards):
     n = len(cards)
     swapped = False
@@ -35,14 +33,22 @@ def select_sort(cards):
 
 
 def is_stable(original, sorted_cards):
-    for i in range(len(original)):
-        for j in range(i+1, len(original)):
-            for a in range(1, len(original)):
-                for b in range(a+1, len(original)):
-                    if original[i][1] == original[j][1] and original[i] == sorted_cards[b] and original[j] == sorted_cards[a]:
-                        return False
+    """
+    カードの数字が同じ場合、元の順番が保存されているかを判定する
+    args:
+        original: 元のカードのリスト ex) ['H1', 'C9', 'S4', 'D2', 'C3']
+        sorted_cards: ソート後のカードのリスト ex) ['D2', 'C3', 'S4', 'H1', 'C9']s
+    return:
+        bool: 安定ソートかどうか
+    """
+    
+    # カードの数字が同じ場合、元の順番が保存されているかを判定する
+    for i in range(len(sorted_cards)):
+        for j in range(i+1, len(sorted_cards)):
+            if sorted_cards[i][1] == sorted_cards[j][1]:
+                if original.index(sorted_cards[i]) > original.index(sorted_cards[j]):
+                    return False
     return True
-
 if __name__ == "__main__":
     n = int(input())
     cards = input().split()
@@ -50,6 +56,8 @@ if __name__ == "__main__":
     bubble_sorted = bubble_sort(cards.copy())
     print(" ".join(bubble_sorted))
     print("Stable" if is_stable(original, bubble_sorted) else "Not stable")
+    # is_stable(original, bubble_sorted)
     select_sorted = select_sort(original.copy())
     print(" ".join(select_sorted))
     print("Stable" if is_stable(original, select_sorted) else "Not stable")
+    # is_stable(original, select_sorted)
