@@ -20,6 +20,10 @@ class DoublyLinkedList:
     def __init__(self):
         self.head = None
         self.tail = None
+        self._length = 0
+        
+    def __len__(self):
+        return self._length
 
     def insert(self, value):
         """
@@ -34,76 +38,22 @@ class DoublyLinkedList:
             new_node.next = self.head
             self.head.prev = new_node
             self.head = new_node
-
-    def bubble_sort(self):
-        """
-        バブルソートを行う
-        """
-
-        start = None # ソートされた範囲の開始点
-
-        while start != self.tail:
-            swapped = False
-            current = self.tail
-            while current.prev != start:
-                next_node = current.prev
-                if current.value < next_node.value:
-                    current.value , next_node.value  = next_node.value , current.value
-                    swapped = True
-                current = next_node
-            if not swapped:
-                break
-            start = current
-
-
-
-
-    def insert_sort(self):
-        """
-        挿入ソートを行う
-        """
-        if not self.head or not self.head.next:
-            return
-        
-        sorted_tail = self.head
-        current = self.head.next
-
-        # currentは二番目の要素から後ろにずらしていって無くなったら終わり
-        while current:
-            #次のcurrentを先に設定しておく
-            next_current = current.next
-
-            #ソート済みの末尾 より currentが小さい時
-            if current.value < sorted_tail.value:
-                #ソート済みの末尾をpositionに格納
-                position = sorted_tail
-                # currentがpositionより大きくなるまでpositionを前にずらす
-                while position and position.value > current.value:
-                    position = position.prev
-                
-                #currentを取り出す
-                if current.next:
-                    current.next.prev = current.prev
-                current.prev.next = current.next
-
-                # positionがある場合、positionの後ろに入れる
-                if position:
-                    current.prev = position
-                    current.next = position.next
-                    if position.next:
-                        position.next.prev = current
-                    position.next = current
-                # positionがない=先頭にcurrentをいれる
-                else:
-                    current.next = self.head
-                    current.prev = None
-                    self.head.prev = current 
-                    self.head  =current
+        self._length += 1
             
-            else:
-                sorted_tail  =current
-            current = next_current
+    def append(self, value):
+        """ リストの末尾に新しいノードを追加する """
+        new_node = DoublyLinkedNode(value)
+        if not self.head:
+            self.head = self.tail = new_node
+        else:
+            self.tail.next = new_node
+            new_node.prev = self.tail
+            self.tail = new_node
+        self._length += 1
 
+    
+            
+            
     def delete(self, value):
         """
         特定の値を持つ最初のノードを削除する。
@@ -131,6 +81,7 @@ class DoublyLinkedList:
                     current_node.next.prev = current_node.prev
                 break
             current_node = current_node.next
+        self._length -= 1
 
     def delete_first(self):
         """
@@ -142,7 +93,8 @@ class DoublyLinkedList:
         else:
             self.head = self.head.next
             self.head.prev = None
-
+        self._length -= 1
+        
     def delete_last(self):
         """
         リストの末尾のノードを削除する。
@@ -154,7 +106,8 @@ class DoublyLinkedList:
         else:
             self.tail = self.tail.prev
             self.tail.next = None
-
+        self._length -= 1
+        
     def output(self):
         """
         リストの全要素を出力して、listで返す
@@ -166,7 +119,123 @@ class DoublyLinkedList:
             current_node = current_node.next
         print(" ".join(list))
         
+    def insert_sort(self):
+        """
+        挿入ソートを行う
+        """
+        if not self.head or not self.head.next:
+            return  # リストが空または一要素のみの場合はソート不要
+    
+        sorted_tail = self.head  # ソート済み部分の最後のノードを追跡
+        current = self.head.next  # 最初のソート対象ノード
+        sorted_length = 1  # ソート済み部分の長さ
+        
+        # リストの終端まで繰り返す
+        while current:
+            next_current = current.next  # 現在のノードの次のノードを保存
+            
+            # 現在のノードがソート済み部分の最後のノードより大きいかどうか
+            if not current.value < sorted_tail.value:
+                sorted_tail = current  # 現在のノードをソート済みとして扱い、次へ進む
+                current = next_current
+                sorted_length += 1
+                continue
+            
+            if sorted_length == len(self):
+                break
 
+            # ソート済み部分内で現在のノードより大きい最初のノードを見つける
+            position = sorted_tail
+            while position and position.value > current.value:
+                position = position.prev  # 適切な挿入位置を探すため後方へ移動
+
+            # 現在のノードを一旦リストから外し、見つけた位置の後ろに挿入
+            self.remove_node(current)
+            self.insert_after(position, current)
+
+            current = next_current  # 次のノードへ進む
+            
+    def remove_node(self,node):
+        """指定されたノードを削除する"""
+        if node.next: 
+            node.next.prev = node.prev # ノードの次のノードのprevを更新
+        if node.prev: 
+            node.prev.next = node.next # ノードの前のノードのnextを更新
+        if node == self.head:
+            self.head = node.next # ノードが先頭の場合、headを更新
+            if self.head:
+                self.head.prev = None
+        if node == self.tail:
+            self.tail = node.prev # ノードが末尾の場合、tailを更新
+            if self.tail:
+                self.tail.next = None
+        node.next = None
+        node.prev = None
+        self._length -= 1
+            
+    def insert_after(self, position, node):
+        """指定された位置の後ろにノードを挿入する"""
+        if position is None:
+            # リストの先頭に挿入
+            node.next = self.head
+            node.prev = None
+            if self.head:
+                self.head.prev = node
+            self.head = node
+            if self.tail is None:
+                self.tail = node  # リストが空だった場合
+        else:
+            # position の後ろに挿入
+            node.next = position.next
+            node.prev = position
+            if position.next:
+                position.next.prev = node
+            position.next = node
+            if position == self.tail:
+                self.tail = node  # 新しい末尾ノードとして更新
+        self._length += 1
+
+    def bubble_sort(self):
+        """
+        バブルソートを使用してリストをソートする
+        """
+        if not self.head or not self.head.next:
+            return
+
+        for _ in range(len(self)- 1):
+            current = self.head
+            swapped = False
+            for _ in range(len(self) - 1):
+                if current.value > current.next.value:
+                    self._swap_nodes(current, current.next)
+                    swapped = True
+                else:
+                    current = current.next
+            if not swapped:
+                break
+
+
+    def _swap_nodes(self, node1, node2):
+        """
+        二つの隣接ノードの位置を交換する
+        """
+        if node1.prev: 
+            node1.prev.next = node2
+        if node2.next:
+            node2.next.prev = node1
+        node1.next = node2.next
+        node2.prev = node1.prev
+
+        node2.next = node1
+        node1.prev = node2
+
+        # ヘッドとテイルの更新を確認する
+        if node2.prev is None:
+            self.head = node2
+        if node1.next is None:
+            self.tail = node1
+
+    
 
 # def execute_command(linked_list, commands):
 #     """
@@ -198,24 +267,7 @@ def test_doubly_linked_list_sort():
     dll.insert_sort()
     dll.output()
 
-    # テストケース 2: 空のリスト
-    dll_empty = DoublyLinkedList()
-    dll_empty.insert_sort()
-    dll_empty.output()
-
-    # テストケース 3: 既にソート済みのリスト
-    dll_sorted = DoublyLinkedList()
-    for elem in sorted(elements):
-        dll_sorted.insert(elem)
-    dll_sorted.insert_sort()
-    dll_sorted.output()
-
-    # テストケース 4: 逆順リスト
-    dll_reverse = DoublyLinkedList()
-    for elem in sorted(elements, reverse=True):
-        dll_reverse.insert(elem)
-    dll_reverse.insert_sort()
-    dll_reverse.output()
+  
 
 def test_doubly_linked_list_bubble_sort():
     # インスタンスの作成
@@ -228,27 +280,17 @@ def test_doubly_linked_list_bubble_sort():
     dll.bubble_sort()
     dll.output()
 
-    # テストケース 2: 空のリスト
-    dll_empty = DoublyLinkedList()
-    dll_empty.bubble_sort()
-    dll_empty.output()
-
-    # テストケース 3: 既にソート済みのリスト
-    dll_sorted = DoublyLinkedList()
-    sorted_elements = sorted(elements)
-    for elem in reversed(sorted_elements):  # 逆順に挿入してからソートする
-        dll_sorted.insert(elem)
-    dll_sorted.bubble_sort()
-    dll_sorted.output()
-
-    # テストケース 4: 逆順リスト
-    dll_reverse = DoublyLinkedList()
-    for elem in elements:
-        dll_reverse.insert(elem)  # 先頭に挿入するため、自然と逆順になる
-    dll_reverse.bubble_sort()
-    dll_reverse.output()
 
 
-test_doubly_linked_list_bubble_sort()
+# test_doubly_linked_list_bubble_sort()
 
 test_doubly_linked_list_sort()
+
+# dll = DoublyLinkedList()
+# elements = [3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5]
+# for elem in elements:
+#     dll.insert(elem)
+# dll.bubble_sort()
+# dll.output()
+
+

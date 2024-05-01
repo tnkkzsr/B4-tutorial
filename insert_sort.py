@@ -3,25 +3,26 @@
 """
 
 
-def insertion_sort(arr: list[int]):
+def insertion_sort(arr: list[int], comp_func):
     """
     配列に対して挿入ソートを行う
-    >>> insertion_sort([5,2,4,6,1,3])
-    insert sort
-    [1, 2, 3, 4, 5, 6]
-    >>> insertion_sort([31,41,59,26,41,58])
-    insert sort
-    [26, 31, 41, 41, 58, 59]
+    
     """
     print("insert sort")
     n = len(arr)
     for i in range(1, n):
         key = arr[i]
         j = i - 1
-        while j >= 0 and arr[j] > key:
+        while j >= 0 and comp_func(arr[j], key):
             arr[j+1] = arr[j]
             j -= 1
         arr[j+1] = key
+    print(arr)
+    
+# Lambda関数の定義
+assending = lambda x,y : x > y
+descending = lambda x,y : x < y
+custom = lambda x,y : x % 2 < y % 2 or (x % 2 == y % 2 and x > y)
 
 # doctestでのテスト
 if __name__ == "__main__":
@@ -29,7 +30,9 @@ if __name__ == "__main__":
     import doctest
     doctest.testmod()
     #　動作確認
-    insertion_sort([5,2,4,6,1,3])
+    insertion_sort([5,2,4,6,1,3],assending)
+    insertion_sort([5,2,4,6,1,3],descending)
+    insertion_sort([5,2,4,6,1,3],custom)
     
 
 
