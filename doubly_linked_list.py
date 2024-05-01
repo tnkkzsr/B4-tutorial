@@ -119,7 +119,7 @@ class DoublyLinkedList:
             current_node = current_node.next
         print(" ".join(list))
         
-    def insert_sort(self):
+    def insert_sort(self,comp_func):
         """
         挿入ソートを行う
         """
@@ -135,7 +135,7 @@ class DoublyLinkedList:
             next_current = current.next  # 現在のノードの次のノードを保存
             
             # 現在のノードがソート済み部分の最後のノードより大きいかどうか
-            if not current.value < sorted_tail.value:
+            if not comp_func(sorted_tail.value, current.value):
                 sorted_tail = current  # 現在のノードをソート済みとして扱い、次へ進む
                 current = next_current
                 sorted_length += 1
@@ -146,7 +146,7 @@ class DoublyLinkedList:
 
             # ソート済み部分内で現在のノードより大きい最初のノードを見つける
             position = sorted_tail
-            while position and position.value > current.value:
+            while position and comp_func(position.value, current.value):
                 position = position.prev  # 適切な挿入位置を探すため後方へ移動
 
             # 現在のノードを一旦リストから外し、見つけた位置の後ろに挿入
@@ -195,7 +195,7 @@ class DoublyLinkedList:
                 self.tail = node  # 新しい末尾ノードとして更新
         self._length += 1
 
-    def bubble_sort(self):
+    def bubble_sort(self,comp_func):
         """
         バブルソートを使用してリストをソートする
         """
@@ -206,7 +206,7 @@ class DoublyLinkedList:
             current = self.head
             swapped = False
             for _ in range(len(self) - 1):
-                if current.value > current.next.value:
+                if comp_func(current.value, current.next.value):
                     self._swap_nodes(current, current.next)
                     swapped = True
                 else:
@@ -236,61 +236,50 @@ class DoublyLinkedList:
             self.tail = node1
 
     
-
-# def execute_command(linked_list, commands):
-#     """
-#     コマンドを解析して実行する
-#     """
-#     for command in commands:
-#         command_list = command.split()
-#         command_type = command_list[0]
-#         value = command_list[1] if len(command_list) > 1 else None
-
-#         match command_type:
-#             case "insert":
-#                 linked_list.insert(value)
-#             case "delete":
-#                 linked_list.delete(value)
-#             case "deleteFirst":
-#                 linked_list.delete_first()
-#             case "deleteLast":
-#                 linked_list.delete_last()
-#             case _:
-#                 raise ValueError("Invalid command type")
+# lambda関数の定義
+ascending = lambda x, y: x > y
+descending = lambda x, y: x < y
+odd_even_asc = lambda x, y: (x %2<y%2) or (x % 2 == y % 2 and x > y)
 
 def test_doubly_linked_list_sort():
-    # テストケース 1: 通常のケース
+    
     dll = DoublyLinkedList()
     elements = [3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5]
     for elem in elements:
         dll.insert(elem)
-    dll.insert_sort()
+    dll.insert_sort(ascending)
     dll.output()
+    dll.insert_sort(descending)
+    dll.output()
+    dll.insert_sort(odd_even_asc)
+    dll.output()
+    
 
   
 
 def test_doubly_linked_list_bubble_sort():
-    # インスタンスの作成
+    
     dll = DoublyLinkedList()
-
-    # テストケース 1: 通常のケース
     elements = [3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5]
     for elem in elements:
         dll.insert(elem)
-    dll.bubble_sort()
+    dll.bubble_sort(ascending)
     dll.output()
+    dll.bubble_sort(descending)
+    dll.output()
+    dll.bubble_sort(odd_even_asc)
+    dll.output()
+    
 
 
-
-# test_doubly_linked_list_bubble_sort()
-
+print("バブルソート")
+test_doubly_linked_list_bubble_sort()
+print("挿入ソート")
 test_doubly_linked_list_sort()
 
-# dll = DoublyLinkedList()
-# elements = [3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5]
-# for elem in elements:
-#     dll.insert(elem)
-# dll.bubble_sort()
-# dll.output()
+
+
+
+
 
 
